@@ -1,0 +1,193 @@
+## 🎛️ Orquestador principal
+
+```powershell
+# 01-Main.ps1
+# .SYNOPSIS: Orquesta la ejecución de todos los scripts de hardening y evaluación CIS.
+# .DESCRIPTION: Controla el flujo completo: carga configuración, ejecuta pretest, aplica hardening, genera reportes.
+# .PARAMETER Mode: 'Test' (solo evaluación), 'Apply' (aplica hardening), 'Full' (Test + Apply + Report).
+# .EXAMPLE: .\01-Main.ps1 -Mode Full -SecurityLevel Level2
+# .NOTES: Tabla de ControlIDs en documentación interna.
+Get-Help .\01-Main.ps1 -Full
+Get-Help .\01-Main.ps1 -Examples
+Get-Help .\01-Main.ps1 -Detailed
+Get-Help .\01-Main.ps1 -Parameter Mode
+```
+
+---
+
+## 📂 Apply\ — hardening
+
+```powershell
+# Set-AccountPolicies.ps1
+# .SYNOPSIS: Aplica políticas de cuenta (bloqueo, contraseñas, expiración).
+# .DESCRIPTION: Controles CIS 1.1.x, 1.2.x. Lógica: modifica registry HKLM:\SECURITY\Policy. Fix: SID -501 mapeo manual.
+# .PARAMETER SecurityLevel: Level1 (baseline) o Level2 (alto). .PARAMETER WhatIf: simula cambios.
+# .EXAMPLE: .\Set-AccountPolicies.ps1 -Mode Apply -SecurityLevel Level2
+# .NOTES: ControlIDs: CIS 1.1.1 (LockoutDuration), CIS 1.2.3 (PasswordComplexity)
+Get-Help .\Apply\Set-AccountPolicies.ps1 -Full
+Get-Help .\Apply\Set-AccountPolicies.ps1 -Examples
+Get-Help .\Apply\Set-AccountPolicies.ps1 -Parameter SecurityLevel
+
+# Set-AdminTemplates.ps1
+# .SYNOPSIS: Aplica plantillas administrativas (directivas de grupo locales).
+# .DESCRIPTION: Controles CIS 18.x. Lógica: registry en HKLM:\SOFTWARE\Policies. Fix: Test-Path valida claves ausentes.
+# .PARAMETER SecurityLevel: Level1/Level2. .PARAMETER WhatIf: simulación.
+# .EXAMPLE: .\Set-AdminTemplates.ps1 -Mode Test -SecurityLevel Level1
+# .NOTES: ControlIDs: CIS 18.3.2 (DisableAutoplay), CIS 18.4.5 (DefenderConfig)
+Get-Help .\Apply\Set-AdminTemplates.ps1 -Full
+Get-Help .\Apply\Set-AdminTemplates.ps1 -Examples
+
+# Set-AuditPolicy.ps1
+# .SYNOPSIS: Configura políticas de auditoría según CIS.
+# .DESCRIPTION: Controles CIS 6.2.x. Lógica: AuditPol.exe /set. Fix: manejo de categorías avanzadas (Advanced Audit).
+# .PARAMETER SecurityLevel: Level1/Level2. .PARAMETER WhatIf: simulación.
+# .EXAMPLE: .\Set-AuditPolicy.ps1 -Mode Apply -Verbose
+# .NOTES: ControlIDs: CIS 6.2.1 (AuditLogon), CIS 6.2.2 (AuditAccountManagement)
+Get-Help .\Apply\Set-AuditPolicy.ps1 -Full
+Get-Help .\Apply\Set-AuditPolicy.ps1 -Examples
+
+# Set-Firewall.ps1
+# .SYNOPSIS: Aplica reglas de firewall (perfil domain/private/public).
+# .DESCRIPTION: Controles CIS 9.1.x, 9.2.x. Lógica: New-NetFirewallRule, Set-NetFirewallProfile.
+# .PARAMETER SecurityLevel: Level1/Level2. .PARAMETER WhatIf: simulación.
+# .EXAMPLE: .\Set-Firewall.ps1 -Mode Apply -Profile Domain -WhatIf
+# .NOTES: ControlIDs: CIS 9.1.1 (Block inbound), CIS 9.2.4 (Log dropped packets)
+Get-Help .\Apply\Set-Firewall.ps1 -Full
+Get-Help .\Apply\Set-Firewall.ps1 -Examples
+
+# Set-SecurityOptions.ps1
+# .SYNOPSIS: Configura opciones de seguridad (LSA, UAC, LM hash).
+# .DESCRIPTION: Controles CIS 2.3.x, 2.4.x. Lógica: registry HKLM:\SYSTEM\...\Lsa. Fix: SID -501 (Guest manual mapping).
+# .PARAMETER SecurityLevel: Level1/Level2. .PARAMETER WhatIf: simulación.
+# .EXAMPLE: .\Set-SecurityOptions.ps1 -Mode Apply -SecurityLevel Level2
+# .NOTES: ControlIDs: CIS 2.3.1.1 (Guest account), CIS 2.3.10.4 (LmCompatibilityLevel)
+Get-Help .\Apply\Set-SecurityOptions.ps1 -Full
+Get-Help .\Apply\Set-SecurityOptions.ps1 -Examples
+
+# Set-UserRights.ps1
+# .SYNOPSIS: Asigna derechos de usuario (SeNetworkLogonRight, SeDenyInteractiveLogonRight).
+# .DESCRIPTION: Controles CIS 2.2.x. Lógica: secedit /export, modifica .inf, secedit /configure.
+# .PARAMETER SecurityLevel: Level1/Level2. .PARAMETER WhatIf: simulación.
+# .EXAMPLE: .\Set-UserRights.ps1 -Mode Apply -WhatIf
+# .NOTES: ControlIDs: CIS 2.2.4 (Deny guest logon), CIS 2.2.6 (SeBackupPrivilege)
+Get-Help .\Apply\Set-UserRights.ps1 -Full
+Get-Help .\Apply\Set-UserRights.ps1 -Examples
+```
+
+---
+
+## 📂 Pretest\ — evaluación CIS
+
+```powershell
+# Test-AccountPolicies.ps1
+# .SYNOPSIS: Evalúa políticas de cuenta contra CIS benchmarks.
+# .DESCRIPTION: Solo lectura. Compara registry actual con baseline CIS. Sin modificaciones.
+# .PARAMETER SecurityLevel: Level1/Level2.
+# .EXAMPLE: .\Test-AccountPolicies.ps1 | Export-Csv report.csv
+# .NOTES: ControlIDs: CIS 1.1.1, 1.2.3. Reversión: N/A (solo evaluación)
+Get-Help .\Pretest\Test-AccountPolicies.ps1 -Full
+Get-Help .\Pretest\Test-AccountPolicies.ps1 -Detailed
+
+# Test-AdminTemplates.ps1
+# .SYNOPSIS: Evalúa plantillas administrativas.
+# .DESCRIPTION: Escanea HKLM:\SOFTWARE\Policies. Fix: Test-Path evita errores en claves ausentes.
+# .PARAMETER SecurityLevel: Level1/Level2.
+# .EXAMPLE: .\Test-AdminTemplates.ps1 -Verbose
+# .NOTES: ControlIDs: CIS 18.3.2, 18.4.5.
+Get-Help .\Pretest\Test-AdminTemplates.ps1 -Full
+Get-Help .\Pretest\Test-AdminTemplates.ps1 -Detailed
+
+# Test-AuditPolicy.ps1
+# .SYNOPSIS: Evalúa políticas de auditoría actuales.
+# .DESCRIPTION: Usa AuditPol /get /category:* y compara con baseline.
+# .PARAMETER SecurityLevel: Level1/Level2.
+# .EXAMPLE: .\Test-AuditPolicy.ps1 -SecurityLevel Level2
+# .NOTES: ControlIDs: CIS 6.2.1, 6.2.2.
+Get-Help .\Pretest\Test-AuditPolicy.ps1 -Full
+Get-Help .\Pretest\Test-AuditPolicy.ps1 -Detailed
+
+# Test-Firewall.ps1
+# .SYNOPSIS: Evalúa reglas y perfiles de firewall.
+# .DESCRIPTION: Verifica Get-NetFirewallProfile y Get-NetFirewallRule.
+# .PARAMETER SecurityLevel: Level1/Level2.
+# .EXAMPLE: .\Test-Firewall.ps1 -Profile Domain
+# .NOTES: ControlIDs: CIS 9.1.1, 9.2.4.
+Get-Help .\Pretest\Test-Firewall.ps1 -Full
+Get-Help .\Pretest\Test-Firewall.ps1 -Detailed
+
+# Test-SecurityOptions.ps1
+# .SYNOPSIS: Evalúa opciones de seguridad actuales.
+# .DESCRIPTION: Escanea registry LSA, UAC, LM hash. Fix: SID -501 mapping manual.
+# .PARAMETER SecurityLevel: Level1/Level2.
+# .EXAMPLE: .\Test-SecurityOptions.ps1 -SecurityLevel Level2
+# .NOTES: ControlIDs: CIS 2.3.1.1, 2.3.10.4.
+Get-Help .\Pretest\Test-SecurityOptions.ps1 -Full
+Get-Help .\Pretest\Test-SecurityOptions.ps1 -Detailed
+
+# Test-UserRights.ps1
+# .SYNOPSIS: Evalúa derechos de usuario asignados.
+# .DESCRIPTION: Usa secedit /export y parsea .inf. Fix: SID -501 (Guest).
+# .PARAMETER SecurityLevel: Level1/Level2.
+# .EXAMPLE: .\Test-UserRights.ps1 | Out-File userrights.txt
+# .NOTES: ControlIDs: CIS 2.2.4, 2.2.6.
+Get-Help .\Pretest\Test-UserRights.ps1 -Full
+Get-Help .\Pretest\Test-UserRights.ps1 -Detailed
+```
+
+---
+
+## 📂 Utils\ — utilidades
+
+```powershell
+# Write-Log.ps1
+# .SYNOPSIS: Escribe entradas de log con timestamp y nivel.
+# .DESCRIPTION: Formato: [YYYY-MM-DD HH:MM:SS] [INFO/WARN/ERROR] mensaje.
+# .PARAMETER Level: INFO, WARN, ERROR. .PARAMETER Message: texto a loguear.
+# .EXAMPLE: Write-Log.ps1 -Level ERROR -Message "Hardening failed"
+# .NOTES: Utilizado por todos los scripts. No aplican ControlIDs CIS.
+Get-Help .\Utils\Write-Log.ps1 -Full
+Get-Help .\Utils\Write-Log.ps1 -Examples
+
+# Backup-Config.ps1
+# .SYNOPSIS: Backup de registry y archivos de configuración.
+# .DESCRIPTION: Exporta HKLM:\SECURITY, HKLM:\SOFTWARE\Policies, y GPO locales.
+# .PARAMETER DeepClean: Elimina backups >30 días.
+# .EXAMPLE: .\Backup-Config.ps1 -Path C:\Backup -DeepClean
+# .NOTES: ControlIDs: N/A (utilidad). Reversión: Restore-Backup.ps1 (no implementado).
+Get-Help .\Utils\Backup-Config.ps1 -Full
+Get-Help .\Utils\Backup-Config.ps1 -Examples
+Get-Help .\Utils\Backup-Config.ps1 -Parameter DeepClean
+
+# Compare-Results.ps1
+# .SYNOPSIS: Compara dos resultados de evaluación JSON.
+# .DESCRIPTION: Usa Compare-Object para diferencias entre baseline y current.
+# .PARAMETER Baseline: JSON con estado anterior. .PARAMETER Current: JSON actual.
+# .EXAMPLE: .\Compare-Results.ps1 -Baseline audit_jan.json -Current audit_feb.json
+# .NOTES: ControlIDs: N/A. Útil para auditoría de cambios post-hardening.
+Get-Help .\Utils\Compare-Results.ps1 -Full
+Get-Help .\Utils\Compare-Results.ps1 -Examples
+
+# Export-Report.ps1
+# .SYNOPSIS: Genera reporte HTML formateado con resultados.
+# .DESCRIPTION: Convierte output de Test-*.ps1 a HTML con CSS embebido.
+# .PARAMETER NoOpen: Suprime apertura automática del navegador.
+# .EXAMPLE: .\Export-Report.ps1 -Path report.html -NoOpen -Title "Audit Enero"
+# .NOTES: ControlIDs: N/A. Reversión: N/A.
+Get-Help .\Utils\Export-Report.ps1 -Full
+Get-Help .\Utils\Export-Report.ps1 -Examples
+Get-Help .\Utils\Export-Report.ps1 -Parameter NoOpen
+```
+
+---
+
+## 📄 Configuración raíz
+
+```powershell
+# 00-Config.ps1
+# .SYNOPSIS: Configuración central (rutas, niveles, umbrales CIS).
+# .DESCRIPTION: Define SecurityLevel, paths de logs, backups, y thresholds.
+# .PARAMETER: Ninguno (archivo de configuración, no función).
+# .EXAMPLE: . .\00-Config.ps1 (dot-source para cargar variables)
+# .NOTES: ControlIDs: N/A. Invocado por 01-Main.ps1.
+Get-Help .\00-Config.ps1 -Full
+```

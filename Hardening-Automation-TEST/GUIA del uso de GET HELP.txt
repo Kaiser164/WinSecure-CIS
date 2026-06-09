@@ -1,0 +1,71 @@
+## 🎛️ Orquestador principal
+
+Get-Help .\01-Main.ps1 -Full
+Get-Help .\01-Main.ps1 -Examples
+Get-Help .\01-Main.ps1 -Detailed
+Get-Help .\01-Main.ps1 -Parameter Mode
+---
+## 📂 Apply\ — hardening
+
+Get-Help .\Apply\Set-AccountPolicies.ps1 -Full
+Get-Help .\Apply\Set-AccountPolicies.ps1 -Examples
+Get-Help .\Apply\Set-AccountPolicies.ps1 -Parameter SecurityLevel
+
+Get-Help .\Apply\Set-AdminTemplates.ps1 -Full
+Get-Help .\Apply\Set-AdminTemplates.ps1 -Examples
+
+Get-Help .\Apply\Set-AuditPolicy.ps1 -Full
+Get-Help .\Apply\Set-AuditPolicy.ps1 -Examples
+
+Get-Help .\Apply\Set-Firewall.ps1 -Full
+Get-Help .\Apply\Set-Firewall.ps1 -Examples
+
+Get-Help .\Apply\Set-SecurityOptions.ps1 -Full
+Get-Help .\Apply\Set-SecurityOptions.ps1 -Examples
+
+Get-Help .\Apply\Set-UserRights.ps1 -Full
+Get-Help .\Apply\Set-UserRights.ps1 -Examples
+```
+
+---
+## 📂 Pretest\ — evaluación CIS
+
+Get-Help .\Pretest\Test-AccountPolicies.ps1 -Full
+Get-Help .\Pretest\Test-AccountPolicies.ps1 -Detailed
+
+Get-Help .\Pretest\Test-AdminTemplates.ps1 -Full
+Get-Help .\Pretest\Test-AdminTemplates.ps1 -Detailed
+
+Get-Help .\Pretest\Test-AuditPolicy.ps1 -Full
+Get-Help .\Pretest\Test-AuditPolicy.ps1 -Detailed
+
+Get-Help .\Pretest\Test-Firewall.ps1 -Full
+Get-Help .\Pretest\Test-Firewall.ps1 -Detailed
+
+Get-Help .\Pretest\Test-SecurityOptions.ps1 -Full
+Get-Help .\Pretest\Test-SecurityOptions.ps1 -Detailed
+
+Get-Help .\Pretest\Test-UserRights.ps1 -Full
+Get-Help .\Pretest\Test-UserRights.ps1 -Detailed
+
+## 📂 Utils\ — utilidades
+
+Get-Help .\Utils\Write-Log.ps1 -Full
+Get-Help .\Utils\Write-Log.ps1 -Examples
+
+Get-Help .\Utils\Backup-Config.ps1 -Full
+Get-Help .\Utils\Backup-Config.ps1 -Examples
+Get-Help .\Utils\Backup-Config.ps1 -Parameter DeepClean
+
+Get-Help .\Utils\Compare-Results.ps1 -Full
+Get-Help .\Utils\Compare-Results.ps1 -Examples
+
+Get-Help .\Utils\Export-Report.ps1 -Full
+Get-Help .\Utils\Export-Report.ps1 -Examples
+Get-Help .\Utils\Export-Report.ps1 -Parameter NoOpen
+```
+
+## 📄 Configuración raíz
+
+Get-Help .\00-Config.ps1 -Full
+
