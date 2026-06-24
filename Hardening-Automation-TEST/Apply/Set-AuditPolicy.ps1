@@ -1,41 +1,8 @@
 #Requires -RunAsAdministrator
-<#
-.SYNOPSIS
-    Aplica las Advanced Audit Policies CIS (sección 17.x) en Windows 10.
-
-.DESCRIPTION
-    Configura mediante auditpol /set /subcategory:{GUID} las subcategorías
-    de auditoría avanzada definidas en el benchmark CIS Microsoft Windows 10
-    Level 1, sección 17.
-
-    Usa GUIDs en lugar de nombres de texto para cada subcategoría,
-    garantizando independencia total del idioma del sistema operativo.
-
-.PARAMETER WhatIf
-    Simula la aplicación sin modificar el sistema. Muestra qué cambios se harían.
-
-.EXAMPLE
-    # Aplicar todas las Advanced Audit Policies
-    .\Set-AuditPolicy.ps1
-
-.EXAMPLE
-    # Simular sin cambios reales
-    .\Set-AuditPolicy.ps1 -WhatIf
-
-.NOTES
-    Controles CIS cubiertos : 17.1.1, 17.2.2, 17.2.3, 17.3.2, 17.5.1,
-                               17.5.4, 17.5.5, 17.6.2, 17.7.1, 17.9.5 (10 controles)
-    Mecanismo               : auditpol /set /subcategory:{GUID} /success /failure
-    Compatibilidad idiomas  : Sí - subcategorías referenciadas por GUID
-    Requiere                : Administrador, PowerShell 5.1, Windows 10
-    Invocado por            : 01-Main.ps1 → Apply\Set-AuditPolicy.ps1
-#>
 
 # ============================================================
 # IMPORTAR CONFIGURACION Y UTILIDADES
 # ============================================================
-# Reutiliza Write-ApplyResult de Utils\Write-Log.ps1 igual que el resto
-# de los modulos Apply\Set-*.ps1, en lugar de redefinirla localmente.
 . "$PSScriptRoot\..\Utils\Write-Log.ps1"
 
 # ============================================
@@ -43,6 +10,30 @@
 # CORRECCIONES: H-04, M-01, L-02, L-07
 # FIX L-07: Subcategorias auditpol por GUID (independiente del idioma)
 # ============================================
+
+# Funcion auxiliar para mostrar resultados
+function Write-ApplyResult {
+    param(
+        [string]$ControlID,
+        [string]$Operation,
+        [bool]$Success,
+        [string]$Details = ""
+    )
+    
+    $icon = if ($Success) { "✅" } else { "❌" }
+    $color = if ($Success) { "Green" } else { "Red" }
+    $status = if ($Success) { "OK" } else { "FAIL" }
+    
+    if ($Details) {
+        Write-Host "  $icon [$ControlID] $Operation : $status - $Details" -ForegroundColor $color
+    } else {
+        Write-Host "  $icon [$ControlID] $Operation : $status" -ForegroundColor $color
+    }
+    
+    if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+        Write-Log -Message "$Operation : $status" -Level $(if ($Success) { "INFO" } else { "ERROR" })
+    }
+}
 
 function Set-AuditPolicy {
     param([switch]$WhatIf)
@@ -72,7 +63,7 @@ function Set-AuditPolicy {
         return $script:results
     }
 
-    # GUIDs de subcategorias Advanced Audit Policy (mismos que Pretest\Test-AuditPolicy.ps1)
+    # GUIDs de subcategorias Advanced Audit Policy
     $auditGUIDs = @{
         "Credential Validation"       = "{0cce923f-69ae-11d9-bed3-505054503030}"
         "Security Group Management"   = "{0cce9237-69ae-11d9-bed3-505054503030}"
