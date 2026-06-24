@@ -27,7 +27,7 @@
 
 ```
 PRETEST  →  BACKUP  →  HARDENING  →  POSTEST  →  INFORME
-  54%    →   snap   →   aplica    →    96%    →   HTML+CSV+JSON
+  54%    →   snap   →   aplica    →    100%    →   HTML+CSV+JSON
 ```
 
 El proyecto evalúa **55 controles** distribuidos en 6 categorías, crea un backup completo antes de aplicar cambios, y genera una comparativa detallada del estado inicial vs. final del sistema.
